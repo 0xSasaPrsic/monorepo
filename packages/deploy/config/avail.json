@@ -1,0 +1,143 @@
+{
+  "version": 0,
+  "networks": [
+    "goerli"
+  ],
+  "agent": {
+    "goerli": {
+      "db": "db",
+      "kathy": {
+        "chat": {
+          "type": "default"
+        },
+        "enabled": true,
+        "interval": 500
+      },
+      "logging": {
+        "fmt": "json",
+        "level": "info"
+      },
+      "metrics": 9090,
+      "processor": {
+        "allowed": null,
+        "denied": null,
+        "enabled": true,
+        "interval": 5,
+        "subsidizedRemotes": []
+      },
+      "relayer": {
+        "enabled": true,
+        "interval": 10
+      },
+      "rpcStyle": "ethereum",
+      "updater": {
+        "enabled": true,
+        "interval": 5
+      },
+      "watcher": {
+        "enabled": true,
+        "interval": 5
+      }
+    },
+    "avail": {
+      "db": "db",
+      "kathy": {
+        "chat": {
+          "type": "default"
+        },
+        "enabled": true,
+        "interval": 500
+      },
+      "logging": {
+        "fmt": "json",
+        "level": "info"
+      },
+      "metrics": 9090,
+      "processor": {
+        "allowed": null,
+        "denied": null,
+        "enabled": true,
+        "interval": 5,
+        "subsidizedRemotes": [
+        ]
+      },
+      "relayer": {
+        "enabled": true,
+        "interval": 10
+      },
+      "rpcStyle": "ethereum",
+      "updater": {
+        "enabled": true,
+        "interval": 5
+      },
+      "watcher": {
+        "enabled": true,
+        "interval": 5
+      }
+    }
+  },
+  "bridge": {
+  },
+  "bridgeGui": {},
+  "core": {
+  },
+  "environment": "development",
+  "gas": {
+    "goerli": "evmDefault"
+  },
+  "protocol": {
+    "governor": {
+      "domain": 1000,
+      "id": "0x0000000000000000000000000000000000000000"
+    },
+    "networks": {
+      "goerli": {
+        "bridgeConfiguration": {
+          "deployGas": 85000000,
+          "mintGas": 20000000,
+          "weth": "0x0bb7509324ce409f7bbc4b701f932eaca9736ab7"
+        },
+        "configuration": {
+          "governance": {
+            "recoveryManager": "0xa4849f1d96b26066f9c631fcdc8f1457d27fb5ec",
+            "recoveryTimelock": 180
+          },
+          "maximumGas": 100000000,
+          "optimisticSeconds": 10,
+          "processGas": 85000000,
+          "reserveGas": 1500000,
+          "updater": "0x14dC79964da2C08b23698B3D3cc7Ca32193d9955",
+          "watchers": [
+            "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f"
+          ]
+        },
+        "connections": [
+          "avail"
+        ],
+        "domain": 1000,
+        "name": "goerli",
+        "specs": {
+          "blockExplorer": "https://goerli.etherscan.io/",
+          "blockTime": 15,
+          "chainId": 5,
+          "confirmations": 4,
+          "finalizationBlocks": 30,
+          "indexPageSize": 2000,
+          "supports1559": true
+        }
+      }
+    }
+  },
+  "rpcs": {
+    "goerli": [
+      "http://192.168.1.111:8545"
+    ],
+    "avail": [
+      "ws://192.168.1.101:9944"
+    ]
+  },
+  "s3": {
+    "bucket": "nomadxyz-development-proofs",
+    "region": "us-west-2"
+  }
+}

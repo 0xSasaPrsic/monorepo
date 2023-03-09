@@ -72,7 +72,7 @@ contract NomadTest is Test {
         uint256 privKey,
         bytes32 oldRoot,
         bytes32 newRoot
-    ) public view returns (bytes memory) {
+    ) public payable returns (bytes memory) {
         bytes32 digest = keccak256(getMessage(oldRoot, newRoot, homeDomain));
         digest = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", digest)
@@ -86,7 +86,7 @@ contract NomadTest is Test {
         uint256 privKey,
         bytes32 oldRoot,
         bytes32 newRoot
-    ) public view returns (bytes memory) {
+    ) public payable returns (bytes memory) {
         bytes32 digest = keccak256(getMessage(oldRoot, newRoot, remoteDomain));
         digest = keccak256(
             abi.encodePacked("\x19Ethereum Signed Message:\n32", digest)

@@ -591,7 +591,7 @@ export default class EvmCoreDeploy extends AbstractCoreDeploy<config.EvmCoreCont
     return;
   }
 
-  async enrollGovernanceRouter(
+  async vernanceRouter(
     remoteDomain: string | number,
   ): Promise<CallBatch | undefined> {
     const local = this.context.resolveDomainName(this.domain);
@@ -638,7 +638,7 @@ export default class EvmCoreDeploy extends AbstractCoreDeploy<config.EvmCoreCont
     const batches = await Promise.all([
       this.enrollReplica(remoteDomain),
       this.enrollWatchers(remoteDomain),
-      this.enrollGovernanceRouter(remoteDomain),
+      // this.enrollGovernanceRouter(remoteDomain),
     ]);
 
     return CallBatch.flatten(this.context.asNomadContext, batches);
