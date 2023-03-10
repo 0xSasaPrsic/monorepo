@@ -61,11 +61,11 @@ export class DeployContext extends MultiProvider<config.Domain> {
         return this.data.networks;
     }
 
-    get cores(): Readonly<Record<string, config.EvmCoreContracts>> {
+    get cores(): Readonly<Record<string, config.CoreDeploymentInfo>> {
         return this.data.core;
     }
 
-    get bridges(): Readonly<Record<string, config.EvmBridgeContracts>> {
+    get bridges(): Readonly<Record<string, config.BridgeDeploymentInfo>> {
         return this.data.bridge;
     }
 
@@ -112,7 +112,7 @@ export class DeployContext extends MultiProvider<config.Domain> {
     getCore(nameOrDomain: string | number): CoreContracts | undefined {
         const name = this.resolveDomainName(nameOrDomain);
         if (!this.data.core[name]) return undefined;
-        return new CoreContracts(this, name, this.data.core[name]);
+        return new CoreContracts(this, name, this.data.core[name] as unknown as config.EthereumCoreDeploymentInfo);
     }
 
     mustGetCore(nameOrDomain: string | number): CoreContracts {
@@ -123,8 +123,10 @@ export class DeployContext extends MultiProvider<config.Domain> {
 
     getBridge(nameOrDomain: string | number): DaBridgeContracts | undefined {
         const name = this.resolveDomainName(nameOrDomain);
-        if (!this.data.bridge[name]) return undefined;
-        return new DaBridgeContracts(this, name, this.data.bridge[name]);
+        if (!this.data.bridge[name]) {
+            return undefined;
+        }
+        return new DaBridgeContracts(this, name, this.data.bridge[name] as unknown as config.EthereumBridgeDeploymentInfo);
     }
 
     mustGetBridge(nameOrDomain: string | number): DaBridgeContracts {
@@ -140,13 +142,13 @@ export class DeployContext extends MultiProvider<config.Domain> {
         this._data = config.addNetwork(this.data, domain);
     }
 
-    protected addCore(name: string, core: config.EvmCoreContracts): void {
+    protected addCore(name: string, core: config.CoreDeploymentInfo): void {
         this._data = config.addCore(this.data, name, core);
         this.output();
     }
 
-    protected addBridge(name: string, bridge: config.EvmBridgeContracts): void {
-        this._data = config.addBridge(this.data, name, bridge as config.BridgeContracts);
+    protected addBridge(name: string, bridge: config.BridgeDeploymentInfo): void {
+        this._data = config.addBridge(this.data, name, bridge);
         this.output();
     }
 
@@ -160,7 +162,9 @@ export class DeployContext extends MultiProvider<config.Domain> {
         }
 
         const net = this._verification.get(name);
-        if (net) net.push(verification);
+        if (net) {
+            net.push(verification);
+        }
     }
 
     mustGetVerification(nameOrDomain: string | number): readonly Verification[] {
@@ -235,9 +239,11 @@ export class DeployContext extends MultiProvider<config.Domain> {
         await bridge.deployDaBridgeRouter();
 
         console.log("this.addBridge");
-        console.log(bridge);
-        this.addBridge(name, bridge.complete());
-        console.log("this.addBridge done");
+        const b = bridge.complete();
+        this.addBridge(name, b);
+        console.log("this.addBridge done " + name);
+        console.log(this.data.bridge[name] as config.EthereumBridgeDeploymentInfo);
+        console.log("--------------");
     }
 
     /// Deploys all configured Cores
@@ -305,8 +311,10 @@ export class DeployContext extends MultiProvider<config.Domain> {
                 if (!remoteDomains) throw new utils.UnreachableError();
                 await Promise.all(
                     remoteDomains.map(async (remote) => {
-                        const batch = await bridge.enrollDABridgeRouter(remote);
-                        if (batch) this._callBatch.append(batch);
+                        if (remote != "avail") {
+                            const batch = await bridge.enrollDABridgeRouter(remote);
+                            if (batch) this._callBatch.append(batch);
+                        }
                     }),
                 );
 
@@ -373,7 +381,7 @@ export class DeployContext extends MultiProvider<config.Domain> {
                 const coreConfig = this.data.core[net];
                 if (!coreConfig)
                     throw new Error(`network ${net} is missing core config`);
-                const core = new CoreContracts(this, net, coreConfig);
+                const core = new CoreContracts(this, net, coreConfig as config.EthereumCoreDeploymentInfo);
 
                 const domainConfig = this.mustGetDomainConfig(net);
 
@@ -394,7 +402,7 @@ export class DeployContext extends MultiProvider<config.Domain> {
                 const bridgeConfig = this.data.bridge[net];
                 if (!bridgeConfig)
                     throw new Error(`network ${net} is missing bridge config`);
-                const bridge = new DaBridgeContracts(this, net, bridgeConfig);
+                const bridge = new DaBridgeContracts(this, net, bridgeConfig as config.EthereumBridgeDeploymentInfo);
                 const checklist = await bridge.checkDeploy(
                     this.data.protocol.networks[net].connections,
                 );

@@ -21,8 +21,8 @@ export abstract class AbstractBridgeDeploy<T> extends Contracts<T> {
   // Placeholder for future multi-VM abstraction
 }
 
-export default class BridgeContracts extends AbstractBridgeDeploy<config.EvmBridgeContracts> {
-  protected keys: ReadonlyArray<keyof config.EvmBridgeContracts> = [
+export default class BridgeContracts extends AbstractBridgeDeploy<config.EthereumBridgeDeploymentInfo> {
+  protected keys: ReadonlyArray<keyof config.EthereumBridgeDeploymentInfo> = [
     'bridgeRouter',
     'tokenRegistry',
     'bridgeToken',
@@ -32,7 +32,7 @@ export default class BridgeContracts extends AbstractBridgeDeploy<config.EvmBrid
   constructor(
     context: DeployContext,
     domain: string,
-    data?: config.EvmBridgeContracts,
+    data?: config.EthereumBridgeDeploymentInfo,
   ) {
     super(context, domain, data);
   }

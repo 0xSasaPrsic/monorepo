@@ -19,12 +19,11 @@ export default abstract class Contracts<T> {
     abstract recordStartBlock(): Promise<void>;
 
     assertIsComplete(): void {
-        for (const key of this.keys) {
-            console.log(key);
+        // for (const key of this.keys) {
             //   if (!this.data[key]) {
             //     throw new Error(`Missing key ${key.toString()}`);
             //   }
-        }
+        // }
     }
 
     complete(): T {

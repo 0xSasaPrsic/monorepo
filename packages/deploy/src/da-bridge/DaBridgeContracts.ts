@@ -1,9 +1,8 @@
-import * as contracts from '@nomad-xyz/contracts-bridge';
 import {
     UBP_SPECIFIER,
-    UpgradeBeaconProxy__factory,
-    UpgradeBeacon__factory,
     UPGRADE_BEACON_SPECIFIER,
+    UpgradeBeacon__factory,
+    UpgradeBeaconProxy__factory,
 } from '@nomad-xyz/contracts-core';
 
 import {ethers} from 'ethers';
@@ -16,24 +15,22 @@ import {log} from '../utils';
 import {Call, CallBatch} from '@nomad-xyz/sdk-govern';
 import {CheckList} from '../Checklist';
 import {DABridgeRouter__factory} from "@nomad-xyz/contracts-da-bridge/dist/src/factories/DABridgeRouter__factory";
-import {DA_BRIDGE_ROUTER_SPECIFIER} from "@nomad-xyz/contracts-da-bridge/dist/";
+import {DA_BRIDGE_ROUTER_SPECIFIER, DABridgeRouter} from "@nomad-xyz/contracts-da-bridge";
 
 export abstract class AbstractBridgeDeploy<T> extends Contracts<T> {
     // Placeholder for future multi-VM abstraction
 }
 
-export default class BridgeContracts extends AbstractBridgeDeploy<config.EvmBridgeContracts> {
-    protected keys: ReadonlyArray<keyof config.EvmBridgeContracts> = [
+export default class DaBridgeContracts extends AbstractBridgeDeploy<config.EthereumBridgeDeploymentInfo> {
+    protected keys: ReadonlyArray<keyof config.EthereumBridgeDeploymentInfo> = [
         'bridgeRouter',
-        'tokenRegistry',
-        'bridgeToken',
         'deployHeight',
     ];
 
     constructor(
         context: DeployContext,
         domain: string,
-        data?: config.EvmBridgeContracts,
+        data?: config.EthereumBridgeDeploymentInfo,
     ) {
         super(context, domain, data);
     }
@@ -68,14 +65,16 @@ export default class BridgeContracts extends AbstractBridgeDeploy<config.EvmBrid
         return utils.parseInt(confirmations);
     }
 
-    get bridgeRouterContract(): contracts.BridgeRouter {
+    get bridgeRouterContract(): DABridgeRouter {
         if (!this.data.bridgeRouter) {
             throw new Error('Missing bridgeRouter address');
         }
-        return contracts.BridgeRouter__factory.connect(
+
+         return DABridgeRouter__factory.connect(
             utils.evmId(this.data.bridgeRouter.proxy),
             this.connection,
         );
+
     }
 
     set bridgeRouter(proxy: config.Proxy) {
@@ -201,7 +200,7 @@ export default class BridgeContracts extends AbstractBridgeDeploy<config.EvmBrid
 
         console.log("pushVerification");
         this.context.pushVerification(name, {
-            name: 'DABridgeRouter',
+            name: 'BridgeRouter',
             specifier: DA_BRIDGE_ROUTER_SPECIFIER,
             address: implementation.address,
         });
@@ -219,8 +218,10 @@ export default class BridgeContracts extends AbstractBridgeDeploy<config.EvmBrid
         const local = this.context.resolveDomainName(this.domain);
 
         const remoteRouter = remoteBridge.data.bridgeRouter?.proxy;
-        if (!remoteRouter)
+        if (!remoteRouter) {
             throw new Error('Remote deploy incomplete. No BridgeRouter');
+        }
+
 
         // don't re-enroll if already enrolled
         const enrolledRemote = await this.bridgeRouterContract.remotes(
@@ -280,16 +281,8 @@ export default class BridgeContracts extends AbstractBridgeDeploy<config.EvmBrid
     async checkDeploy(remoteDomains: string[]): Promise<CheckList> {
         const checklist = new CheckList(`${this.domain.toUpperCase()}`, 'BRIDGE');
         checklist.addCheck({
-            msg: `BridgeToken is in config`,
-            check: () => checklist.assertBeaconProxy(this.data.bridgeToken),
-        });
-        checklist.addCheck({
             msg: `BridgeRouter is in config`,
             check: () => checklist.assertBeaconProxy(this.data.bridgeRouter),
-        });
-        checklist.addCheck({
-            msg: `TokenRegistry is in config`,
-            check: () => checklist.assertBeaconProxy(this.data.tokenRegistry),
         });
 
         // # DABridgeRouter
