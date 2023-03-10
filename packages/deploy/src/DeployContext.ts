@@ -218,11 +218,11 @@ export class DeployContext extends MultiProvider<config.Domain> {
 
         await Promise.all([
             core.deployUpgradeBeaconController(),
-            core.deployUpdaterManager(),
+            // core.deployUpdaterManager(), // TODO updater manager should not be deployed
             core.deployXAppConnectionManager(),
         ]);
 
-        await core.deployHome();
+        await core.deployHome(); // TODO Home is not used but xapp is setting home on original script?
         await core.deployGovernanceRouter();
 
         // all contracts deployed

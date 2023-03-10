@@ -66,11 +66,11 @@ export default class DaBridgeContracts extends AbstractBridgeDeploy<config.Ether
     }
 
     get bridgeRouterContract(): DABridgeRouter {
-        if (!this.data.bridgeRouter) {
+        if (!this.data.bridgeRouter) { //TODO it raises error since cannot read bridge router
             throw new Error('Missing bridgeRouter address');
         }
 
-         return DABridgeRouter__factory.connect(
+        return DABridgeRouter__factory.connect(
             utils.evmId(this.data.bridgeRouter.proxy),
             this.connection,
         );
